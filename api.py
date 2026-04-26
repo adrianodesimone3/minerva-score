@@ -22,10 +22,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =============================================================================
-# CONFIG (must match training config exactly)
-# =============================================================================
-
 CATEGORICAL_VARIABLES = [
     'sex', 'diabetes', 'chronic_pulmonary_disease', 'previous_episodes',
     'hypertension', 'atrial_fibrillation', 'ischemic_heart_disease',
@@ -39,8 +35,16 @@ CONTINUOUS_VARIABLES = [
     'serum_lipase', 'ldh',
 ]
 
+SCALER_VARIABLES = [
+    'age', 'bmi', 'wbc', 'neutrophils', 'platelets', 'inr', 'crp',
+    'ast', 'alt', 'total_bilirubin', 'conjugated_bilirubin', 'ggt',
+    'serum_amylase', 'serum_lipase', 'ldh',
+]
+
+SCALER_IDX = [SCALER_VARIABLES.index(v) for v in CONTINUOUS_VARIABLES]
+
 CATEGORICAL_CARDINALITIES = {
-    'sex': 3, 'previous_episodes': 2, 'admitting_specialty': 5,
+    'sex': 3, 'previous_episodes': 2,
     'diabetes': 2, 'chronic_pulmonary_disease': 2, 'hypertension': 2,
     'atrial_fibrillation': 2, 'ischemic_heart_disease': 2,
     'chronic_kidney_disease': 2, 'hematopoietic_disease': 2,
@@ -54,16 +58,12 @@ HIDDEN_DIMS    = [4, 8]
 DROPOUT        = 0.1
 THRESHOLD      = 0.415
 
-# =============================================================================
-# MODEL ARCHITECTURE (identical to training code)
-# =============================================================================
 
 class CategoricalEmbedding(nn.Module):
     def __init__(self, cardinalities, embedding_dim):
         super().__init__()
         self.embeddings = nn.ModuleList(
             [nn.Embedding(c, embedding_dim) for c in cardinalities])
-
     def forward(self, x):
         return torch.cat([e(x[:, i]) for i, e in enumerate(self.embeddings)], dim=1)
 
@@ -73,7 +73,6 @@ class ContinuousProjection(nn.Module):
         super().__init__()
         self.projections = nn.ModuleList(
             [nn.Linear(1, projection_dim) for _ in range(num_continuous)])
-
     def forward(self, x):
         return torch.cat([p(x[:, i:i+1]) for i, p in enumerate(self.projections)], dim=1)
 
@@ -89,7 +88,6 @@ class MLPBlock(nn.Module):
         )
         self.projection = (nn.Linear(input_dim, hidden_dim)
                            if input_dim != hidden_dim else None)
-
     def forward(self, x):
         out  = self.mlp(x)
         skip = self.projection(x) if self.projection is not None else x
@@ -99,31 +97,22 @@ class MLPBlock(nn.Module):
 class MinervaModel(nn.Module):
     def __init__(self):
         super().__init__()
-        cat_cards = [CATEGORICAL_CARDINALITIES[v] for v in CATEGORICAL_VARIABLES]
-        emb_dim   = EMBEDDING_DIM
-        cont_dim  = CONTINUOUS_DIM
-
-        self.cat_emb = CategoricalEmbedding(cat_cards, emb_dim)
-        cat_in       = len(CATEGORICAL_VARIABLES) * emb_dim
-
-        self.cont_enc = ContinuousProjection(len(CONTINUOUS_VARIABLES), cont_dim)
-        cont_in = len(CONTINUOUS_VARIABLES) * cont_dim
-
-        in_dim      = cat_in + cont_in
-        self.blocks = nn.ModuleList()
-        prev        = in_dim
+        cat_cards     = [CATEGORICAL_CARDINALITIES[v] for v in CATEGORICAL_VARIABLES]
+        self.cat_emb  = CategoricalEmbedding(cat_cards, EMBEDDING_DIM)
+        self.cont_enc = ContinuousProjection(len(CONTINUOUS_VARIABLES), CONTINUOUS_DIM)
+        in_dim        = len(CATEGORICAL_VARIABLES)*EMBEDDING_DIM + len(CONTINUOUS_VARIABLES)*CONTINUOUS_DIM
+        self.blocks   = nn.ModuleList()
+        prev          = in_dim
         for h in HIDDEN_DIMS:
             self.blocks.append(MLPBlock(prev, h, DROPOUT))
             prev = h
-
         self.head = nn.Sequential(
-            nn.Linear(prev, max(prev // 2, 2)),
-            nn.BatchNorm1d(max(prev // 2, 2)),
+            nn.Linear(prev, max(prev//2, 2)),
+            nn.BatchNorm1d(max(prev//2, 2)),
             nn.GELU(),
             nn.Dropout(DROPOUT),
-            nn.Linear(max(prev // 2, 2), 2),
+            nn.Linear(max(prev//2, 2), 2),
         )
-
     def forward(self, categorical, continuous):
         x = torch.cat([self.cat_emb(categorical), self.cont_enc(continuous)], dim=1)
         for blk in self.blocks:
@@ -131,60 +120,42 @@ class MinervaModel(nn.Module):
         return self.head(x)
 
 
-# =============================================================================
-# LOAD MODEL + SCALER AT STARTUP
-# =============================================================================
-
 model  = None
 scaler = None
 
 @app.on_event("startup")
 def load_model():
     global model, scaler
-
     model_path  = os.getenv("MODEL_PATH",  "best_fold_model")
     scaler_path = os.getenv("SCALER_PATH", "scaler.pkl")
-
-    # Load model weights
-    checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
-    state_dict = checkpoint["model_state_dict"]
-
+    checkpoint  = torch.load(model_path, map_location="cpu", weights_only=False)
     m = MinervaModel()
-    m.load_state_dict(state_dict)
+    m.load_state_dict(checkpoint["model_state_dict"])
     m.eval()
     model = m
     print("✓ Model loaded")
-
-    # Load scaler if available
     if os.path.exists(scaler_path):
         with open(scaler_path, "rb") as f:
             scaler = pickle.load(f)
-        print("✓ Scaler loaded")
+        print(f"✓ Scaler loaded ({scaler.n_features_in_} features)")
     else:
-        print("⚠ Scaler not found — continuous variables will NOT be normalized")
+        print("⚠ Scaler not found")
 
-
-# =============================================================================
-# INPUT SCHEMA
-# =============================================================================
 
 class PatientData(BaseModel):
-    # Categorical (integers)
-    sex: int                          # 0=unknown, 1=male, 2=female
-    diabetes: int                     # 0=no, 1=yes
-    chronic_pulmonary_disease: int    # 0=no, 1=yes
-    previous_episodes: int            # 0=no, 1=yes
-    hypertension: int                 # 0=no, 1=yes
-    atrial_fibrillation: int          # 0=no, 1=yes
-    ischemic_heart_disease: int       # 0=no, 1=yes
-    chronic_kidney_disease: int       # 0=no, 1=yes
-    hematopoietic_disease: int        # 0=no, 1=yes
-    immunosuppressive_medications: int # 0=no, 1=yes
-    choledocholithiasis: int          # 0-3
-    cholangitis: int                  # 0=no, 1=yes
-    ercp: int                         # 0-5
-
-    # Continuous (floats)
+    sex: int
+    diabetes: int
+    chronic_pulmonary_disease: int
+    previous_episodes: int
+    hypertension: int
+    atrial_fibrillation: int
+    ischemic_heart_disease: int
+    chronic_kidney_disease: int
+    hematopoietic_disease: int
+    immunosuppressive_medications: int
+    choledocholithiasis: int
+    cholangitis: int
+    ercp: int
     age: float
     bmi: float
     wbc: float
@@ -199,40 +170,32 @@ class PatientData(BaseModel):
     ggt: float
     serum_lipase: float
     ldh: float
+    serum_amylase: float = 0.0
 
-
-# =============================================================================
-# PREDICT ENDPOINT
-# =============================================================================
 
 @app.post("/predict")
 def predict(data: PatientData):
     if model is None:
         raise HTTPException(status_code=503, detail="Model not loaded")
-
-    # Build categorical tensor
-    cat_values = [getattr(data, v) for v in CATEGORICAL_VARIABLES]
-    cat_tensor  = torch.tensor([cat_values], dtype=torch.long)
-
-    # Build continuous tensor
-    cont_values = np.array([[getattr(data, v) for v in CONTINUOUS_VARIABLES]], dtype=np.float32)
+    cat_tensor = torch.tensor(
+        [[getattr(data, v) for v in CATEGORICAL_VARIABLES]], dtype=torch.long)
     if scaler is not None:
-        cont_values = scaler.transform(cont_values)
+        full_cont   = np.array([[getattr(data, v) for v in SCALER_VARIABLES]], dtype=np.float32)
+        full_scaled = scaler.transform(full_cont)
+        cont_values = full_scaled[:, SCALER_IDX]
+    else:
+        cont_values = np.array(
+            [[getattr(data, v) for v in CONTINUOUS_VARIABLES]], dtype=np.float32)
     cont_tensor = torch.tensor(cont_values, dtype=torch.float32)
-
-    # Inference
     with torch.no_grad():
         logits = model(cat_tensor, cont_tensor)
         prob   = float(F.softmax(logits, dim=1)[0, 1].item())
-
-    risk_pct   = round(prob * 100, 1)
-    high_risk  = prob >= THRESHOLD
-
+    high_risk = prob >= THRESHOLD
     return {
-        "probability":  risk_pct,
-        "high_risk":    high_risk,
-        "threshold":    round(THRESHOLD * 100, 1),
-        "message":      "Alto rischio di riammissione" if high_risk else "Basso rischio di riammissione"
+        "probability": round(prob*100, 1),
+        "high_risk":   high_risk,
+        "threshold":   round(THRESHOLD*100, 1),
+        "message":     "Alto rischio di riammissione" if high_risk else "Basso rischio di riammissione"
     }
 
 
