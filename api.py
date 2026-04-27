@@ -128,14 +128,18 @@ def load_model():
     global model, scaler
     model_path  = os.getenv("MODEL_PATH",  "best_fold_model")
     scaler_path = os.getenv("SCALER_PATH", "scaler.pkl")
-    import pickle as pkl_loader
-    with open(os.path.join(model_path, "data.pkl"), "rb") as f:
-        checkpoint = pkl_loader.load(f)
+
+    # Load model weights from data.pkl inside the folder
+    pkl_path = os.path.join(model_path, "data.pkl")
+    with open(pkl_path, "rb") as f:
+        checkpoint = torch.load(f, map_location="cpu", weights_only=False)
+
     m = MinervaModel()
     m.load_state_dict(checkpoint["model_state_dict"])
     m.eval()
     model = m
     print("✓ Model loaded")
+
     if os.path.exists(scaler_path):
         with open(scaler_path, "rb") as f:
             scaler = pickle.load(f)
@@ -179,8 +183,10 @@ class PatientData(BaseModel):
 def predict(data: PatientData):
     if model is None:
         raise HTTPException(status_code=503, detail="Model not loaded")
+
     cat_tensor = torch.tensor(
         [[getattr(data, v) for v in CATEGORICAL_VARIABLES]], dtype=torch.long)
+
     if scaler is not None:
         full_cont   = np.array([[getattr(data, v) for v in SCALER_VARIABLES]], dtype=np.float32)
         full_scaled = scaler.transform(full_cont)
@@ -188,15 +194,18 @@ def predict(data: PatientData):
     else:
         cont_values = np.array(
             [[getattr(data, v) for v in CONTINUOUS_VARIABLES]], dtype=np.float32)
+
     cont_tensor = torch.tensor(cont_values, dtype=torch.float32)
+
     with torch.no_grad():
         logits = model(cat_tensor, cont_tensor)
         prob   = float(F.softmax(logits, dim=1)[0, 1].item())
+
     high_risk = prob >= THRESHOLD
     return {
-        "probability": round(prob*100, 1),
+        "probability": round(prob * 100, 1),
         "high_risk":   high_risk,
-        "threshold":   round(THRESHOLD*100, 1),
+        "threshold":   round(THRESHOLD * 100, 1),
         "message":     "Alto rischio di riammissione" if high_risk else "Basso rischio di riammissione"
     }
 
