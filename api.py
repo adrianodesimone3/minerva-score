@@ -128,7 +128,9 @@ def load_model():
     global model, scaler
     model_path  = os.getenv("MODEL_PATH",  "best_fold_model")
     scaler_path = os.getenv("SCALER_PATH", "scaler.pkl")
-    checkpoint  = torch.load(model_path, map_location="cpu", weights_only=False)
+    import pickle as pkl_loader
+    with open(os.path.join(model_path, "data.pkl"), "rb") as f:
+        checkpoint = pkl_loader.load(f)
     m = MinervaModel()
     m.load_state_dict(checkpoint["model_state_dict"])
     m.eval()
