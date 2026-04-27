@@ -126,16 +126,11 @@ scaler = None
 @app.on_event("startup")
 def load_model():
     global model, scaler
-    model_path  = os.getenv("MODEL_PATH",  "best_fold_model")
+    model_path  = os.getenv("MODEL_PATH",  "best_fold_model.pt")
     scaler_path = os.getenv("SCALER_PATH", "scaler.pkl")
 
-    # Load model weights from data.pkl inside the folder
-    checkpoint = torch.load(
-        os.path.join(model_path, "data.pkl"),
-        map_location="cpu",
-        weights_only=False,
-        pickle_module=__import__("pickle")
-    )
+    # Load model weights from .pt file
+    checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
 
     m = MinervaModel()
     m.load_state_dict(checkpoint["model_state_dict"])
