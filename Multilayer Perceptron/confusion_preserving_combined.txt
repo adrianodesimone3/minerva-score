@@ -1,0 +1,18 @@
+Threshold : 0.6050
+
+Confusion matrix [[TN FP],[FN TP]]:
+  277  54
+  32  36
+
+TN=277  FP=54  FN=32  TP=36
+Predicted positives : 90/399 (0.226)
+True prevalence     : 68/399 (0.170)
+
+Quantiles P(y=1):
+  q  0: 0.0805
+  q 10: 0.2623
+  q 25: 0.3181
+  q 50: 0.4036
+  q 75: 0.5679
+  q 90: 0.7116
+  q100: 0.8679
