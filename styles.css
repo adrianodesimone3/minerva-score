@@ -77,42 +77,26 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 
 .brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+  /* The JPG already carries its own thin printed border, so no border here */
 }
 
-.brand-mark {
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border: 1.5px solid var(--ink);
-  background: var(--ink);
-  color: var(--paper);
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 1;
-  letter-spacing: -0.02em;
+.brand-logo {
+  display: block;
+  height: 76px;        /* yields ~126px wide at the logo's 1.66:1 aspect */
+  width: auto;
+  max-height: 76px;
+  user-select: none;
+  /* Slight negative margin pulls the logo's white padding into the masthead
+     padding so the figure visually aligns with the rest of the toolbar. */
+  margin: -10px 0;
 }
 
-.brand-title {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: 18px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  line-height: 1;
-}
-
-.brand-sub {
-  font-family: var(--sans);
-  font-size: 12px;
-  color: var(--ink-soft);
-  margin-top: 4px;
-  letter-spacing: 0.01em;
+@media (max-width: 640px) {
+  .brand-logo { height: 56px; margin: -6px 0; }
 }
 
 .masthead-meta {
@@ -192,6 +176,29 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   text-transform: uppercase;
   color: var(--accent-deep);
   font-weight: 600;
+}
+
+/* The acronym is built from the underlined letters; the line itself reads
+   like a research-paper sub-title set above the dateline / eyebrow. */
+.acronym-expansion {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(14px, 1.6vw, 17px);
+  line-height: 1.4;
+  color: var(--ink-soft);
+  letter-spacing: 0.005em;
+  max-width: 64ch;
+}
+
+.acronym-expansion u {
+  text-decoration: none;
+  font-weight: 600;
+  font-style: normal;
+  color: var(--ink);
+  border-bottom: 1.5px solid var(--accent);
+  padding-bottom: 1px;
 }
 
 .intro-headline {
