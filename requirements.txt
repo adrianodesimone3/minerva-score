@@ -1,6 +1,2 @@
 fastapi
-uvicorn
-torch
-numpy
-pydantic
-scikit-learn
+uvicorn[standard]

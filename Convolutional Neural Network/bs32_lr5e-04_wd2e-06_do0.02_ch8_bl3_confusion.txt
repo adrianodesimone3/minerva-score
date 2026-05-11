@@ -1,9 +1,0 @@
-Run: bs32_lr5e-04_wd2e-06_do0.02_ch8_bl3
-Threshold: 0.500
-Confusion matrix [[TN FP],[FN TP]]
-270 61
-26 42
-
-TN=270  FP=61  FN=26  TP=42
-Predicted positives: 103 / 399 (0.258)
-Prevalence positives: 68 / 399 (0.170)

@@ -1,0 +1,16 @@
+# Render Blueprint — documents the intended deploy config.
+# Existing services keep their dashboard settings; this file is consumed
+# only when the service is re-created from the Blueprint.
+#
+# To update the live service to match: open the Render dashboard, go to
+# the service settings, and confirm the build/start commands below.
+
+services:
+  - type: web
+    name: minerva-score
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    autoDeploy: true

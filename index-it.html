@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MINERVA · Rischio di recidiva di pancreatite biliare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">M</span>
+      <div class="brand-text">
+        <div class="brand-title">MINERVA</div>
+        <div class="brand-sub">Rischio di recidiva di pancreatite biliare</div>
+      </div>
+    </div>
+    <div class="masthead-meta">
+      <nav class="lang-switch" aria-label="Lingua">
+        <a href="index.html" lang="en">EN</a>
+        <span aria-hidden="true">·</span>
+        <a href="index-it.html" class="is-active" lang="it">IT</a>
+      </nav>
+      <div class="masthead-tag">Anteprima di ricerca</div>
+    </div>
+  </div>
+</header>
+
+<section class="intro">
+  <div class="intro-inner">
+    <p class="intro-eyebrow">Solo a scopo informativo · Non sostituisce il parere medico</p>
+    <h1 class="intro-headline">
+      Stima la probabilità di essere ricoverato di nuovo
+      <span class="intro-emph">entro 30 giorni</span> dopo un ricovero
+      per pancreatite da calcoli.
+    </h1>
+    <p class="intro-lede">
+      Compila le informazioni qui sotto — oppure carica un paziente di
+      esempio — e ti mostreremo una stima del rischio basata su un modello
+      addestrato su circa 3.000 casi precedenti. Le tue risposte restano in
+      questo browser.
+    </p>
+    <div class="intro-actions">
+      <label class="picker">
+        <span class="picker-label">Prova un esempio</span>
+        <select id="demo-picker">
+          <option value="">— inserisci i valori manualmente —</option>
+        </select>
+      </label>
+      <button type="button" id="reset-btn" class="ghost-btn">Ripristina valori tipici</button>
+      <span class="status" id="status" hidden>Caricamento del modello…</span>
+    </div>
+  </div>
+</section>
+
+<main class="main">
+  <form id="patient-form" class="form" autocomplete="off">
+
+    <article class="section" data-section="01">
+      <header class="section-head">
+        <span class="section-num">01</span>
+        <h2 class="section-title">Informazioni personali</h2>
+        <span class="section-rule"></span>
+      </header>
+      <p class="section-helper">Dati di base.</p>
+      <div class="grid grid-3" data-fields="demographics"></div>
+    </article>
+
+    <article class="section" data-section="02">
+      <header class="section-head">
+        <span class="section-num">02</span>
+        <h2 class="section-title">La tua storia clinica</h2>
+        <span class="section-rule"></span>
+      </header>
+      <p class="section-helper">Attiva ogni voce che ti riguarda.</p>
+      <div class="grid grid-2" data-fields="comorbidities"></div>
+    </article>
+
+    <article class="section" data-section="03">
+      <header class="section-head">
+        <span class="section-num">03</span>
+        <h2 class="section-title">Esami del sangue al ricovero</h2>
+        <span class="section-rule"></span>
+      </header>
+      <p class="section-helper">
+        Copia questi valori dai documenti dell'ospedale. Se non sei sicuro
+        di un valore, lascia il valore tipico predefinito.
+      </p>
+      <div class="grid grid-3" data-fields="laboratory"></div>
+    </article>
+
+    <article class="section" data-section="04">
+      <header class="section-head">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Cosa hanno trovato i medici</h2>
+        <span class="section-rule"></span>
+      </header>
+      <p class="section-helper">Dai referti delle immagini e delle procedure.</p>
+      <div class="grid grid-2" data-fields="findings"></div>
+    </article>
+  </form>
+
+  <aside class="result" id="result-panel" aria-live="polite">
+    <div class="result-stack">
+
+      <div class="result-block result-prob">
+        <div class="result-eyebrow">Probabilità stimata di nuovo ricovero entro 30 giorni</div>
+        <div class="prob-row">
+          <span class="prob-value" id="prob-value">—</span>
+          <span class="prob-pct">%</span>
+        </div>
+        <p class="prob-plain" id="prob-plain">
+          Circa <span id="prob-plain-num">—</span> persone su 100 con questo profilo
+          sono tornate in ospedale entro un mese, secondo i dati storici.
+        </p>
+        <div class="risk-bar">
+          <div class="risk-bar-track">
+            <div class="risk-bar-zone risk-low"></div>
+            <div class="risk-bar-zone risk-mid"></div>
+            <div class="risk-bar-zone risk-high"></div>
+            <div class="risk-bar-thr" id="risk-thr-marker"></div>
+            <div class="risk-bar-needle" id="risk-needle"></div>
+          </div>
+          <div class="risk-bar-axis">
+            <span>Basso</span>
+            <span>Più alto del solito</span>
+          </div>
+        </div>
+        <div class="result-verdict" id="result-verdict">Compila il modulo per vedere la tua stima</div>
+      </div>
+
+      <div class="result-block result-image">
+        <div class="result-eyebrow">Come il modello vede i tuoi dati</div>
+        <div class="canvas-wrap">
+          <canvas id="di-canvas" width="16" height="16" aria-label="Una griglia 16 per 16 a colori che mostra lo schema interno del modello"></canvas>
+        </div>
+        <p class="result-fineprint">
+          Il modello riorganizza le tue risposte in questa piccola immagine
+          e ne osserva lo schema, allo stesso modo in cui ha imparato dai
+          pazienti precedenti. È mostrato per trasparenza — non c'è bisogno
+          di interpretarlo.
+        </p>
+      </div>
+
+      <div class="result-block result-meta">
+        <div class="result-eyebrow">Cosa significa</div>
+        <ul class="plain-list">
+          <li>È una <strong>stima statistica</strong>, non una diagnosi.
+              A volte il modello segnala persone che stanno bene e non
+              riconosce quelle che non lo stanno — circa 4 segnalazioni su
+              10 risultano essere riammissioni reali nei nostri dati di test.</li>
+          <li>Se la tua stima si trova nella <strong>zona arancione o rossa</strong>,
+              parla con il tuo medico di un controllo più ravvicinato — non
+              perché ci sia sicuramente qualcosa che non va, ma perché un
+              monitoraggio più stretto potrebbe essere utile.</li>
+          <li>Se è nella <strong>zona verde</strong>, è in linea con un
+              rischio "inferiore alla media" nei nostri dati — segui comunque
+              le indicazioni del tuo team clinico.</li>
+        </ul>
+      </div>
+
+    </div>
+  </aside>
+</main>
+
+<footer class="colophon">
+  <div class="colophon-inner">
+    <p>
+      Tutto avviene nel tuo browser. Le tue risposte non vengono inviate
+      a nessuno e nulla viene salvato.
+    </p>
+    <p class="colophon-fineprint">
+      Strumento di ricerca · non è un dispositivo medico · segui sempre i consigli del tuo medico.
+    </p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.js"></script>
+<script src="app-it.js"></script>
+</body>
+</html>

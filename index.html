@@ -1,544 +1,195 @@
-<!DOCTYPE html>
-<html lang="it">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MINERVA Score — Calcolatore di Rischio</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #f0f4f8;
-      color: #1a202c;
-      min-height: 100vh;
-    }
-
-    header {
-      background: #1a365d;
-      color: white;
-      padding: 24px 32px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    header img { height: 48px; }
-
-    header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    header p {
-      font-size: 0.85rem;
-      opacity: 0.75;
-      margin-top: 2px;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 32px auto;
-      padding: 0 16px 64px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      padding: 28px 32px;
-      margin-bottom: 24px;
-    }
-
-    .card h2 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #2b6cb0;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #ebf4ff;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 16px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #4a5568;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-
-    .field input,
-    .field select {
-      width: 100%;
-      padding: 9px 12px;
-      border: 1.5px solid #cbd5e0;
-      border-radius: 7px;
-      font-size: 0.95rem;
-      color: #2d3748;
-      background: #fafafa;
-      transition: border-color 0.2s;
-      appearance: none;
-    }
-
-    .field input:focus,
-    .field select:focus {
-      outline: none;
-      border-color: #3182ce;
-      background: white;
-    }
-
-    .field .unit {
-      font-size: 0.72rem;
-      color: #718096;
-      margin-top: 4px;
-    }
-
-    .btn-row {
-      display: flex;
-      justify-content: center;
-      margin-top: 8px;
-    }
-
-    button[type="submit"] {
-      background: #2b6cb0;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 14px 48px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: 0.5px;
-      transition: background 0.2s, transform 0.1s;
-    }
-
-    button[type="submit"]:hover { background: #2c5282; transform: translateY(-1px); }
-    button[type="submit"]:active { transform: translateY(0); }
-    button[type="submit"]:disabled { background: #a0aec0; cursor: not-allowed; transform: none; }
-
-    #result {
-      display: none;
-      border-radius: 12px;
-      padding: 28px 32px;
-      margin-bottom: 24px;
-      text-align: center;
-    }
-
-    #result.low {
-      background: #f0fff4;
-      border: 2px solid #68d391;
-    }
-
-    #result.high {
-      background: #fff5f5;
-      border: 2px solid #fc8181;
-    }
-
-    #result .risk-label {
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-
-    #result.low .risk-label { color: #276749; }
-    #result.high .risk-label { color: #9b2c2c; }
-
-    #result .risk-pct {
-      font-size: 3.5rem;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-
-    #result.low .risk-pct { color: #276749; }
-    #result.high .risk-pct { color: #c53030; }
-
-    #result .risk-msg {
-      font-size: 1rem;
-      color: #4a5568;
-      margin-top: 8px;
-    }
-
-    #result .threshold-note {
-      font-size: 0.78rem;
-      color: #718096;
-      margin-top: 12px;
-    }
-
-    #loading {
-      display: none;
-      text-align: center;
-      padding: 20px;
-      color: #718096;
-      font-size: 0.95rem;
-    }
-
-    #error {
-      display: none;
-      background: #fff5f5;
-      border: 1.5px solid #fc8181;
-      border-radius: 8px;
-      padding: 14px 20px;
-      color: #c53030;
-      margin-bottom: 16px;
-      font-size: 0.9rem;
-    }
-
-    .disclaimer {
-      font-size: 0.78rem;
-      color: #718096;
-      text-align: center;
-      margin-top: 8px;
-      line-height: 1.5;
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MINERVA · Biliary pancreatitis recidivism risk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<header>
-  <div>
-    <h1>MINERVA Score</h1>
-    <p>Calcolatore di rischio — Pancreatite biliare acuta lieve</p>
+<!-- ============================================================ -->
+<!-- masthead                                                     -->
+<!-- ============================================================ -->
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">M</span>
+      <div class="brand-text">
+        <div class="brand-title">MINERVA</div>
+        <div class="brand-sub">Biliary pancreatitis recidivism risk</div>
+      </div>
+    </div>
+    <div class="masthead-meta">
+      <nav class="lang-switch" aria-label="Language">
+        <a href="index.html" class="is-active" lang="en">EN</a>
+        <span aria-hidden="true">·</span>
+        <a href="index-it.html" lang="it">IT</a>
+      </nav>
+      <div class="masthead-tag">Research preview</div>
+    </div>
   </div>
 </header>
 
-<div class="container">
-
-  <div id="error"></div>
-
-  <div id="result">
-    <div class="risk-label" id="result-label"></div>
-    <div class="risk-pct" id="result-pct"></div>
-    <div class="risk-msg" id="result-msg"></div>
-    <div class="threshold-note" id="result-threshold"></div>
-  </div>
-
-  <div id="loading">⏳ Calcolo in corso...</div>
-
-  <form id="minerva-form">
-
-    <!-- SEZIONE 1: DATI ANAGRAFICI -->
-    <div class="card">
-      <h2>Dati Anagrafici</h2>
-      <div class="grid">
-
-        <div class="field">
-          <label>Età</label>
-          <input type="number" name="age" min="18" max="110" step="1" placeholder="es. 65" required />
-          <div class="unit">anni</div>
-        </div>
-
-        <div class="field">
-          <label>Sesso</label>
-          <select name="sex" required>
-            <option value="">— seleziona —</option>
-            <option value="1">Maschio</option>
-            <option value="2">Femmina</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>BMI</label>
-          <input type="number" name="bmi" min="10" max="70" step="0.1" placeholder="es. 26.5" required />
-          <div class="unit">kg/m²</div>
-        </div>
-
-        <div class="field">
-          <label>Episodi precedenti</label>
-          <select name="previous_episodes" required>
-            <option value="">— seleziona —</option>
-            <option value="0">No</option>
-            <option value="1">Sì</option>
-          </select>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- SEZIONE 2: COMORBIDITÀ -->
-    <div class="card">
-      <h2>Comorbidità</h2>
-      <div class="grid">
-
-        <div class="field">
-          <label>Diabete</label>
-          <select name="diabetes" required>
-            <option value="">— seleziona —</option>
-            <option value="0">No</option>
-            <option value="1">Sì</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>BPCO / Malattia polmonare cronica</label>
-          <select name="chronic_pulmonary_disease" required>
-            <option value="">— seleziona —</option>
-            <option value="0">No</option>
-            <option value="1">Sì</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Ipertensione</label>
-          <select name="hypertension" required>
-            <option value="">— seleziona —</option>
-            <option value="0">No</option>
-            <option value="1">Sì</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Fibrillazione atriale</label>
-          <select name="atrial_fibrillation" required>
-            <option value="">— seleziona —</option>
-            <option value="0">No</option>
-            <option value="1">Sì</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Cardiopatia ischemica</label>
-          <select name="ischemic_heart_disease" required>
-            <option value="">— seleziona —</option>
-            <option value="0">No</option>
-            <option value="1">Sì</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Nefropatia cronica</label>
-          <select name="chronic_kidney_disease" required>
-            <option value="">— seleziona —</option>
-            <option value="0">No</option>
-            <option value="1">Sì</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Malattia ematopoietica</label>
-          <select name="hematopoietic_disease" required>
-            <option value="">— seleziona —</option>
-            <option value="0">No</option>
-            <option value="1">Sì</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Farmaci immunosoppressori</label>
-          <select name="immunosuppressive_medications" required>
-            <option value="">— seleziona —</option>
-            <option value="0">No</option>
-            <option value="1">Sì</option>
-          </select>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- SEZIONE 3: ESAMI DI LABORATORIO -->
-    <div class="card">
-      <h2>Esami di Laboratorio (all'ammissione)</h2>
-      <div class="grid">
-
-        <div class="field">
-          <label>WBC</label>
-          <input type="number" name="wbc" min="0" step="0.01" placeholder="es. 10500" required />
-          <div class="unit">cellule/mm³</div>
-        </div>
-
-        <div class="field">
-          <label>Neutrofili</label>
-          <input type="number" name="neutrophils" min="0" step="0.01" placeholder="es. 8200" required />
-          <div class="unit">cellule/mm³</div>
-        </div>
-
-        <div class="field">
-          <label>Piastrine</label>
-          <input type="number" name="platelets" min="0" step="1" placeholder="es. 220000" required />
-          <div class="unit">mcL</div>
-        </div>
-
-        <div class="field">
-          <label>INR</label>
-          <input type="number" name="inr" min="0" step="0.01" placeholder="es. 1.1" required />
-        </div>
-
-        <div class="field">
-          <label>PCR (CRP)</label>
-          <input type="number" name="crp" min="0" step="0.1" placeholder="es. 45.0" required />
-          <div class="unit">mg/L</div>
-        </div>
-
-        <div class="field">
-          <label>AST</label>
-          <input type="number" name="ast" min="0" step="0.1" placeholder="es. 120" required />
-          <div class="unit">U/L</div>
-        </div>
-
-        <div class="field">
-          <label>ALT</label>
-          <input type="number" name="alt" min="0" step="0.1" placeholder="es. 180" required />
-          <div class="unit">U/L</div>
-        </div>
-
-        <div class="field">
-          <label>Bilirubina totale</label>
-          <input type="number" name="total_bilirubin" min="0" step="0.01" placeholder="es. 2.5" required />
-          <div class="unit">mg/dL</div>
-        </div>
-
-        <div class="field">
-          <label>Bilirubina coniugata</label>
-          <input type="number" name="conjugated_bilirubin" min="0" step="0.01" placeholder="es. 1.2" required />
-          <div class="unit">mg/dL</div>
-        </div>
-
-        <div class="field">
-          <label>GGT</label>
-          <input type="number" name="ggt" min="0" step="0.1" placeholder="es. 95" required />
-          <div class="unit">U/L</div>
-        </div>
-
-        <div class="field">
-          <label>Lipasi sierica</label>
-          <input type="number" name="serum_lipase" min="0" step="0.1" placeholder="es. 850" required />
-          <div class="unit">U/L</div>
-        </div>
-
-        <div class="field">
-          <label>LDH</label>
-          <input type="number" name="ldh" min="0" step="0.1" placeholder="es. 240" required />
-          <div class="unit">U/L</div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- SEZIONE 4: DATI CLINICI -->
-    <div class="card">
-      <h2>Dati Clinici</h2>
-      <div class="grid">
-
-        <div class="field">
-          <label>Coledocolitiasi</label>
-          <select name="choledocholithiasis" required>
-            <option value="">— seleziona —</option>
-            <option value="0">Assente</option>
-            <option value="1">Presente</option>
-            <option value="2">Sospetta</option>
-            <option value="3">Trattata</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Colangite</label>
-          <select name="cholangitis" required>
-            <option value="">— seleziona —</option>
-            <option value="0">No</option>
-            <option value="1">Sì</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>ERCP</label>
-          <select name="ercp" required>
-            <option value="">— seleziona —</option>
-            <option value="0">Non eseguita</option>
-            <option value="1">Eseguita (successo)</option>
-            <option value="2">Eseguita (parziale)</option>
-            <option value="3">Eseguita (fallita)</option>
-            <option value="4">Programmata</option>
-            <option value="5">Controindicata</option>
-          </select>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="btn-row">
-      <button type="submit" id="submit-btn">Calcola Rischio MINERVA</button>
-    </div>
-
-    <p class="disclaimer">
-      Questo strumento è destinato esclusivamente a professionisti sanitari.<br>
-      Il risultato è un supporto decisionale e non sostituisce il giudizio clinico.
+<!-- ============================================================ -->
+<!-- intro band                                                    -->
+<!-- ============================================================ -->
+<section class="intro">
+  <div class="intro-inner">
+    <p class="intro-eyebrow">For information only · Not a substitute for medical advice</p>
+    <h1 class="intro-headline">
+      Estimate the chance of being readmitted to hospital
+      <span class="intro-emph">within 30 days</span> after a gallstone
+      pancreatitis admission.
+    </h1>
+    <p class="intro-lede">
+      Fill in the information below — or load an example patient — and
+      we'll show an estimated risk based on a model trained on
+      ~3,000 prior cases. Your answers stay in this browser.
     </p>
+    <div class="intro-actions">
+      <label class="picker">
+        <span class="picker-label">Try an example</span>
+        <select id="demo-picker">
+          <option value="">— enter values manually —</option>
+        </select>
+      </label>
+      <button type="button" id="reset-btn" class="ghost-btn">Reset to typical values</button>
+      <span class="status" id="status" hidden>Loading model…</span>
+    </div>
+  </div>
+</section>
 
+<!-- ============================================================ -->
+<!-- main: form + result panel                                     -->
+<!-- ============================================================ -->
+<main class="main">
+  <form id="patient-form" class="form" autocomplete="off">
+
+    <article class="section" data-section="01">
+      <header class="section-head">
+        <span class="section-num">01</span>
+        <h2 class="section-title">About you</h2>
+        <span class="section-rule"></span>
+      </header>
+      <p class="section-helper">Basic information.</p>
+      <div class="grid grid-3" data-fields="demographics"></div>
+    </article>
+
+    <article class="section" data-section="02">
+      <header class="section-head">
+        <span class="section-num">02</span>
+        <h2 class="section-title">Your medical history</h2>
+        <span class="section-rule"></span>
+      </header>
+      <p class="section-helper">Tap each item if it applies to you.</p>
+      <div class="grid grid-2" data-fields="comorbidities"></div>
+    </article>
+
+    <article class="section" data-section="03">
+      <header class="section-head">
+        <span class="section-num">03</span>
+        <h2 class="section-title">Blood tests on admission</h2>
+        <span class="section-rule"></span>
+      </header>
+      <p class="section-helper">
+        Copy these from your hospital paperwork. If you're not sure of a value,
+        leave the typical default in place.
+      </p>
+      <div class="grid grid-3" data-fields="laboratory"></div>
+    </article>
+
+    <article class="section" data-section="04">
+      <header class="section-head">
+        <span class="section-num">04</span>
+        <h2 class="section-title">What the doctors found</h2>
+        <span class="section-rule"></span>
+      </header>
+      <p class="section-helper">From your imaging and procedure reports.</p>
+      <div class="grid grid-2" data-fields="findings"></div>
+    </article>
   </form>
-</div>
 
-<script>
-  // ← Cambia questo URL con l'URL della tua API su Render
-  const API_URL = "https://minerva-api-xh73.onrender.com/predict";
+  <aside class="result" id="result-panel" aria-live="polite">
+    <div class="result-stack">
 
-  const form      = document.getElementById("minerva-form");
-  const resultDiv = document.getElementById("result");
-  const loading   = document.getElementById("loading");
-  const errorDiv  = document.getElementById("error");
-  const submitBtn = document.getElementById("submit-btn");
+      <div class="result-block result-prob">
+        <div class="result-eyebrow">Estimated chance of 30-day readmission</div>
+        <div class="prob-row">
+          <span class="prob-value" id="prob-value">—</span>
+          <span class="prob-pct">%</span>
+        </div>
+        <p class="prob-plain" id="prob-plain">
+          About <span id="prob-plain-num">—</span> in 100 people with this profile
+          went back to hospital within a month, in past data.
+        </p>
+        <div class="risk-bar">
+          <div class="risk-bar-track">
+            <div class="risk-bar-zone risk-low"></div>
+            <div class="risk-bar-zone risk-mid"></div>
+            <div class="risk-bar-zone risk-high"></div>
+            <div class="risk-bar-thr" id="risk-thr-marker"></div>
+            <div class="risk-bar-needle" id="risk-needle"></div>
+          </div>
+          <div class="risk-bar-axis">
+            <span>Low</span>
+            <span>Higher than usual</span>
+          </div>
+        </div>
+        <div class="result-verdict" id="result-verdict">Fill in the form to see your estimate</div>
+      </div>
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+      <div class="result-block result-image">
+        <div class="result-eyebrow">How the model sees your data</div>
+        <div class="canvas-wrap">
+          <canvas id="di-canvas" width="16" height="16" aria-label="A 16 by 16 colour grid showing the model's internal pattern"></canvas>
+        </div>
+        <p class="result-fineprint">
+          The model rearranges your answers into this small picture and looks
+          at the pattern, the same way it learned from past patients. It's
+          there for transparency — you don't need to read it.
+        </p>
+      </div>
 
-    // Reset UI
-    resultDiv.style.display = "none";
-    errorDiv.style.display  = "none";
-    loading.style.display   = "block";
-    submitBtn.disabled      = true;
+      <div class="result-block result-meta">
+        <div class="result-eyebrow">What this means</div>
+        <ul class="plain-list">
+          <li>This is a <strong>statistical estimate</strong>, not a diagnosis.
+              The model sometimes flags people who do fine and misses
+              people who don't — about 4 in 10 of its flags turn out
+              to be readmissions in our test data.</li>
+          <li>If your estimate is in the <strong>orange or red zone</strong>,
+              talk to your doctor about follow-up — not because something is
+              definitely wrong, but because closer monitoring may be helpful.</li>
+          <li>If it's in the <strong>green zone</strong>, that aligns with
+              "lower than average risk" in our data — but still follow your
+              clinical team's instructions.</li>
+        </ul>
+      </div>
 
-    // Build payload
-    const fd = new FormData(form);
-    const payload = {};
-    for (const [key, val] of fd.entries()) {
-      payload[key] = parseFloat(val);
-    }
+    </div>
+  </aside>
+</main>
 
-    try {
-      const res  = await fetch(API_URL, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(payload),
-      });
+<!-- ============================================================ -->
+<!-- footer colophon                                               -->
+<!-- ============================================================ -->
+<footer class="colophon">
+  <div class="colophon-inner">
+    <p>
+      Everything runs in your browser. Your answers are not sent anywhere
+      and nothing is stored.
+    </p>
+    <p class="colophon-fineprint">
+      Research tool · not a medical device · always follow your doctor's advice.
+    </p>
+  </div>
+</footer>
 
-      if (!res.ok) throw new Error(`Errore API: ${res.status}`);
-
-      const data = await res.json();
-
-      // Show result
-      resultDiv.className = data.high_risk ? "high" : "low";
-      document.getElementById("result-label").textContent =
-        data.high_risk ? "⚠ Alto Rischio" : "✓ Basso Rischio";
-      document.getElementById("result-pct").textContent  = data.probability + "%";
-      document.getElementById("result-msg").textContent  = data.message;
-      document.getElementById("result-threshold").textContent =
-        `Soglia decisionale: ${data.threshold}% — AUC test: 0.777`;
-
-      resultDiv.style.display = "block";
-      resultDiv.scrollIntoView({ behavior: "smooth", block: "start" });
-
-    } catch (err) {
-      errorDiv.textContent = "⚠ Errore durante il calcolo. Riprovare tra qualche istante. " +
-        "(Se il server è inattivo da più di 15 minuti, attendere 30-60 secondi e riprovare.)";
-      errorDiv.style.display = "block";
-    } finally {
-      loading.style.display = "none";
-      submitBtn.disabled    = false;
-    }
-  });
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/ort.min.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
