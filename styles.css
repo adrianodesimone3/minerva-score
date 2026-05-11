@@ -217,6 +217,18 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   color: var(--accent);
 }
 
+/* Acronym letters inside the headline (the MINERVA wordmark expansion).
+   Match the original logo's typographic treatment: the underlined letters
+   are normal weight and colour, just lifted slightly by an accent rule. */
+.intro-headline u {
+  text-decoration: none;
+  border-bottom: 0.06em solid var(--accent);
+  padding-bottom: 0.04em;
+  color: inherit;
+  font-style: normal;
+  font-weight: inherit;
+}
+
 .intro-lede {
   margin: 0;
   max-width: 60ch;
