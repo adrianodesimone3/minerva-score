@@ -76,6 +76,12 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   gap: 32px;
 }
 
+.brand-logos {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -86,17 +92,22 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 .brand-logo {
   display: block;
-  height: 76px;        /* yields ~126px wide at the logo's 1.66:1 aspect */
+  height: 76px;
   width: auto;
   max-height: 76px;
   user-select: none;
-  /* Slight negative margin pulls the logo's white padding into the masthead
-     padding so the figure visually aligns with the rest of the toolbar. */
   margin: -10px 0;
 }
 
+.brand-logo-europa {
+  height: 60px;
+  margin: -4px 0;
+}
+
 @media (max-width: 640px) {
-  .brand-logo { height: 56px; margin: -6px 0; }
+  .brand-logo { height: 52px; margin: -6px 0; }
+  .brand-logo-europa { height: 42px; margin: -3px 0; }
+  .brand-logos { gap: 14px; }
 }
 
 .masthead-meta {
@@ -790,19 +801,17 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .colophon-inner {
   max-width: 1320px;
   margin: 0 auto;
-  padding: 28px var(--gutter);
+  padding: 28px var(--gutter) 32px;
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 24px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .colophon p {
   margin: 0;
   font-size: 12px;
   color: var(--ink-soft);
-  max-width: 56ch;
+  max-width: 80ch;
 }
 
 .colophon-fineprint {
@@ -811,6 +820,31 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   font-size: 11px !important;
   color: var(--ink-mute) !important;
   text-transform: uppercase;
+}
+
+.colophon-cite {
+  font-size: 11px !important;
+  line-height: 1.7;
+  color: var(--ink-soft) !important;
+  border-top: 1px solid var(--hairline);
+  padding-top: 12px;
+  margin-top: 4px !important;
+}
+
+.colophon-cite a {
+  color: var(--accent);
+  word-break: break-all;
+}
+
+.colophon-credit {
+  font-family: var(--mono);
+  font-size: 10px !important;
+  letter-spacing: 0.10em;
+  color: var(--ink-mute) !important;
+  text-transform: uppercase;
+  border-top: 1px solid var(--hairline-soft);
+  padding-top: 10px;
+  margin-top: 2px !important;
 }
 
 /* ----------------------------------------------------------------------
